@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IEEE 42010 → 構造構成主義への圏論的翻訳</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Yu Gothic', 'Meiryo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .presentation-container {
+            width: 1400px;
+            height: 788px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            padding: 50px 60px;
+            display: none;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .slide-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        .slide-header h1 {
+            font-size: 2em;
+            color: #1a202c;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .slide-header .subtitle {
+            font-size: 1.2em;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .content-section {
+            margin: 25px 0;
+        }
+
+        .section-title {
+            font-size: 1.4em;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-left: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9em;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        td {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            background: #f7fafc;
+        }
+
+        tr:nth-child(even) td {
+            background: #edf2f7;
+        }
+
+        .process-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 25px 0;
+            gap: 15px;
+        }
+
+        .process-box {
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            min-width: 200px;
+            flex: 1;
+        }
+
+        .process-box .title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .process-box .desc {
+            font-size: 0.9em;
+            color: #4a5568;
+            line-height: 1.5;
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #fef5e7 0%, #fdeaa8 100%);
+            border-left: 6px solid #f39c12;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .key-concept-box {
+            background: linear-gradient(135deg, #e8f4f8 0%, #b8e6f5 100%);
+            border: 3px solid #3498db;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .preservation-box {
+            background: linear-gradient(135deg, #d4edda 0%, #a3d9a5 100%);
+            border: 3px solid #28a745;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .transformation-box {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            border: 3px solid #f56565;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .example-box {
+            background: white;
+            border: 3px solid #8b5cf6;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+        }
+
+        .slide-number {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            color: #a0aec0;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        ul li {
+            padding-left: 25px;
+            position: relative;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        ul li:before {
+            content: "▶";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-size: 0.8em;
+        }
+
+        strong {
+            color: #2d3748;
+        }
+
+        .formula {
+            font-family: 'Courier New', monospace;
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-size: 1.1em;
+            border: 2px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: タイトル -->
+        <div class="slide active">
+            <div class="slide-header">
+                <h1>IEEE 42010 → 構造構成主義</h1>
+                <div class="subtitle">圏論的翻訳メカニズムの実例</div>
+            </div>
+
+            <div class="key-concept-box">
+                <h3 style="color: #2c5282; margin-bottom: 15px; font-size: 1.3em;">翻訳の全体像</h3>
+                <div class="formula">
+                    翻訳 = π_SC ∘ 変換_{Its→(I∪We)} ∘ embed_IEEE
+                </div>
+                <p style="margin-top: 15px; font-size: 1.1em; color: #2d3748; line-height: 1.8;">
+                    システム工学の客観的技術設計理論を、<br>
+                    人間科学の主観的意味構成理論へと<br>
+                    <strong style="color: #c53030;">構造を保ちながら変換</strong>する
+                </p>
+            </div>
+
+            <div class="process-flow">
+                <div class="process-box" style="background: linear-gradient(135deg, #fef5e7, #fdeaa8); border-color: #f39c12;">
+                    <div class="title" style="color: #d68910;">ステップ1</div>
+                    <div class="desc">埋め込み<br>Embedding</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="process-box" style="background: linear-gradient(135deg, #e8f4f8, #b8e6f5); border-color: #3498db;">
+                    <div class="title" style="color: #2c5282;">ステップ2</div>
+                    <div class="desc">象限変換<br>Transformation</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="process-box" style="background: linear-gradient(135deg, #d4edda, #a3d9a5); border-color: #28a745;">
+                    <div class="title" style="color: #155724;">ステップ3</div>
+                    <div class="desc">射影<br>Projection</div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <strong style="font-size: 1.2em;">本スライドの構成：</strong><br>
+                スライド2: ステップ1 - IEEE 42010のM⁶⁵空間への埋め込み<br>
+                スライド3: ステップ2 - Its象限から(I∪We)象限への変換<br>
+                スライド4: ステップ3 - 構造構成主義への射影<br>
+                スライド5: 完全な翻訳例と構造保存性の検証
+            </div>
+
+            <div class="slide-number">1/5</div>
+        </div>
+
+        <!-- Slide 2: ステップ1 埋め込み -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1>ステップ1: 埋め込み (Embedding)</h1>
+                <div class="subtitle">embed_IEEE: IEEE 42010 → M⁶⁵|Its象限</div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-title">IEEE 42010の6要素をM⁶⁵座標に配置</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">IEEE 42010要素</th>
+                            <th style="width: 75%;">M⁶⁵座標 (プロセス次元, 象限, その他の5要素構造)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Stakeholder</strong><br>利害関係者・建築家</td>
+                            <td><strong>Observer@Its象限</strong>, Level=成熟度3-4, Line=システム工学領域<br>役割として定義された技術システムの関係者</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Concern</strong><br>関心事・環境制約</td>
+                            <td><strong>Focus@Its象限</strong>, 技術的制約・性能要求・外部環境要因<br>客観的に定義可能なシステム要求</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Viewpoint</strong><br>視点定義・フレームワーク</td>
+                            <td><strong>Method@Its象限</strong>, アーキテクチャ記述方法論<br>標準化された設計アプローチ</td>
+                        </tr>
+                        <tr>
+                            <td><strong>View</strong><br>アーキテクチャビュー</td>
+                            <td><strong>Construction@Its象限</strong>, システム設計成果物<br>具体的な設計ドキュメント・モデル</td>
+                        </tr>
+                        <tr>
+                            <td><strong>System</strong><br>目標アーキテクチャ</td>
+                            <td><strong>Target@Its象限</strong>, 実現すべき技術システム<br>客観的に検証可能なシステム仕様</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Description</strong><br>記述・評価結果</td>
+                            <td><strong>Data@Its象限</strong>, 客観的システム仕様書・テスト結果<br>定量的・測定可能な技術データ</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="key-concept-box">
+                <h3 style="color: #2c5282; margin-bottom: 10px;">埋め込みの特性</h3>
+                <ul style="margin-top: 10px;">
+                    <li><strong>象限：Its (集合外面)</strong> - 客観的で観察可能な技術システム領域</li>
+                    <li><strong>証拠の性質：</strong>定量的・測定可能・検証可能な技術データ</li>
+                    <li><strong>主体の性質：</strong>役割として定義された利害関係者(職務上の立場)</li>
+                </ul>
+            </div>
+
+            <div class="slide-number">2/5</div>
+        </div>
+
+        <!-- Slide 3: ステップ2 象限変換 -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1>ステップ2: 象限変換 (Transformation)</h1>
+                <div class="subtitle">変換: M⁶⁵|Its → M⁶⁵|(I∪We)</div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-title">変換される要素と保存される構造</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">要素</th>
+                            <th style="width: 28%;">Its象限での表現</th>
+                            <th style="width: 28%;">(I∪We)象限への変換</th>
+                            <th style="width: 29%;">変換の性質</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Observer</strong></td>
+                            <td>システム利害関係者<br>(役割)</td>
+                            <td>関心を持つ生きた主体<br>(個人)</td>
+                            <td style="color: #c53030; font-weight: bold;">役割→主体性へ</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Focus</strong></td>
+                            <td>技術的制約・要求</td>
+                            <td>個人的関心・価値・目標</td>
+                            <td style="color: #c53030; font-weight: bold;">客観的要求→主観的関心へ</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Method</strong></td>
+                            <td>システム設計視点</td>
+                            <td>関心相関的方法論</td>
+                            <td style="color: #c53030; font-weight: bold;">標準的方法→文脈依存的方法へ</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Construction</strong></td>
+                            <td>設計成果物(ビュー)</td>
+                            <td>能動的構成作用</td>
+                            <td style="color: #c53030; font-weight: bold;">静的成果物→動的構成プロセスへ</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Target</strong></td>
+                            <td>目標システム</td>
+                            <td>関心相関的現実</td>
+                            <td style="color: #c53030; font-weight: bold;">客観的システム→構成された現実へ</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Data</strong></td>
+                            <td>技術仕様書・評価結果</td>
+                            <td>現象学的記述</td>
+                            <td style="color: #c53030; font-weight: bold;">客観的データ→経験的現象へ</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="preservation-box">
+                <h3 style="color: #155724; margin-bottom: 10px;">✓ 保存される構造</h3>
+                <ul>
+                    <li><strong>6要素間の射の合成関係:</strong> attend ∘ select ∘ apply ∘ aim ∘ evidence ∘ learn</li>
+                    <li><strong>循環的フィードバック構造:</strong> Data → Observer への学習ループ</li>
+                    <li><strong>要素間の依存関係の位相的構造:</strong> 前後関係と因果性</li>
+                </ul>
+            </div>
+
+            <div class="transformation-box">
+                <h3 style="color: #c53030; margin-bottom: 10px;">✗ 意図的に変化する性質</h3>
+                <ul>
+                    <li><strong>視点:</strong> 客観的(Its) → 主観的・間主観的(I∪We)</li>
+                    <li><strong>存在論:</strong> 技術的実在 → 現象学的構成</li>
+                    <li><strong>証拠の性質:</strong> 測定可能な客観データ → 経験的現象</li>
+                </ul>
+            </div>
+
+            <div class="slide-number">3/5</div>
+        </div>
+
+        <!-- Slide 4: ステップ3 射影 -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1>ステップ3: 射影 (Projection)</h1>
+                <div class="subtitle">π_SC: M⁶⁵|(I∪We) → 構造構成主義</div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-title">M⁶⁵座標から構造構成主義の用語体系への再解釈</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">M⁶⁵|(I∪We)の座標</th>
+                            <th style="width: 30%;">構造構成主義の概念</th>
+                            <th style="width: 40%;">具体例</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Observer@(I∪We)</td>
+                            <td><strong>Subject</strong><br>(関心志向構成主体)</td>
+                            <td>「IoTシステムによって便利な生活を実現したい」という関心を持つ市民</td>
+                        </tr>
+                        <tr>
+                            <td>Focus@(I∪We)</td>
+                            <td><strong>Concern</strong><br>(関心・価値・目標)</td>
+                            <td>「自宅の安全性を高めたい」「エネルギーを節約したい」という個人的価値</td>
+                        </tr>
+                        <tr>
+                            <td>Method@(I∪We)</td>
+                            <td><strong>Method</strong><br>(関心相関的方法)</td>
+                            <td>その人の生活文脈に応じた最適な方法の選択</td>
+                        </tr>
+                        <tr>
+                            <td>Construction@(I∪We)</td>
+                            <td><strong>Construction</strong><br>(能動的構成作用)</td>
+                            <td>主体が自らの関心に基づいて現実を意味づけ、構成する営み</td>
+                        </tr>
+                        <tr>
+                            <td>Target@(I∪We)</td>
+                            <td><strong>Reality</strong><br>(関心相関的現実)</td>
+                            <td>その主体にとって妥当で意味のある現実</td>
+                        </tr>
+                        <tr>
+                            <td>Data@(I∪We)</td>
+                            <td><strong>Phenomenon</strong><br>(現象学的記述)</td>
+                            <td>主体が経験する生きられた現象</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="key-concept-box">
+                <h3 style="color: #2c5282; margin-bottom: 10px;">射影の本質</h3>
+                <p style="line-height: 1.8; font-size: 1.05em;">
+                    M⁶⁵空間の座標を、構造構成主義の理論的文脈における用語と概念に<strong style="color: #c53030;">再解釈</strong>する。<br>
+                    これにより、技術システムの客観的記述が、人間の主観的経験の記述へと翻訳される。
+                </p>
+            </div>
+
+            <div class="slide-number">4/5</div>
+        </div>
+
+        <!-- Slide 5: 完全な翻訳例と検証 -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1>完全な翻訳例と構造保存性の検証</h1>
+                <div class="subtitle">翻訳 = π_SC ∘ 変換_{Its→(I∪We)} ∘ embed_IEEE</div>
+            </div>
+
+            <div class="example-box">
+                <h3 style="color: #5b21b6; margin-bottom: 15px;">具体的翻訳例</h3>
+                
+                <div style="background: #fef5e7; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <strong style="color: #d68910;">IEEE 42010での記述:</strong>
+                    <p style="margin-top: 10px; line-height: 1.6;">
+                        "Stakeholder 'エンドユーザー' has Concern '家の防犯性能向上' and evaluates System through Viewpoint 'セキュリティアーキテクチャ視点'"
+                    </p>
+                </div>
+
+                <div class="arrow" style="text-align: center; margin: 10px 0;">↓</div>
+
+                <div style="background: #e8f4f8; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <strong style="color: #2c5282;">埋め込み後 M⁶⁵|Its座標:</strong>
+                    <p style="margin-top: 10px; line-height: 1.6;">
+                        Observer=利害関係者(役割), Focus=技術的要求, Method=標準的視点, @Its象限
+                    </p>
+                </div>
+
+                <div class="arrow" style="text-align: center; margin: 10px 0;">↓</div>
+
+                <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <strong style="color: #0c4a6e;">象限変換後 M⁶⁵|(I∪We)座標:</strong>
+                    <p style="margin-top: 10px; line-height: 1.6;">
+                        Observer=生きた個人, Focus=個人的関心・価値, Method=関心相関的方法, @(I∪We)象限
+                    </p>
+                </div>
+
+                <div class="arrow" style="text-align: center; margin: 10px 0;">↓</div>
+
+                <div style="background: #d4edda; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <strong style="color: #155724;">射影後 構造構成主義での記述:</strong>
+                    <p style="margin-top: 10px; line-height: 1.6;">
+                        "Subject 'ある市民' は Concern '家族の安全を守りたい' という関心を持ち、自らの生活文脈において Method '関心相関的にIoT技術を評価・選択する方法' を用いて、Reality '自分にとって安心できる住環境' を Construction (構成) する"
+                    </p>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                <div class="preservation-box">
+                    <h3 style="color: #155724; margin-bottom: 10px;">保存された構造</h3>
+                    <ul style="font-size: 0.95em;">
+                        <li><strong>射の合成則:</strong> attend→select→apply→aim→evidence→learn の順序関係</li>
+                        <li><strong>循環構造:</strong> learn: Data → Observer のフィードバックループ</li>
+                        <li><strong>要素間依存関係:</strong> Focusなくして Method は選べない</li>
+                    </ul>
+                </div>
+
+                <div class="transformation-box">
+                    <h3 style="color: #c53030; margin-bottom: 10px;">意図的に変化した要素</h3>
+                    <ul style="font-size: 0.95em;">
+                        <li><strong>存在論的立場:</strong> 客観的実在 → 関心相関的構成</li>
+                        <li><strong>証拠の性質:</strong> 技術的測定データ → 生きられた経験</li>
+                        <li><strong>主体の性質:</strong> 役割 → 生きた個人</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="slide-number">5/5</div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn">← 前へ</button>
+        <button class="nav-btn" id="nextBtn">次へ →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === totalSlides - 1;
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < totalSlides - 1) {
+                showSlide(currentSlide + 1);
+            }
+        });
+
+        showSlide(0);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' && currentSlide < totalSlides - 1) {
+                showSlide(currentSlide + 1);
+            } else if (e.key === 'ArrowLeft' && currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        });
+    </script>
+</body>
+</html>
